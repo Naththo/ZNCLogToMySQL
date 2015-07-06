@@ -77,6 +77,11 @@ public:
 		return CONTINUE;
 	}
 
+	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
+		InsertToDb("privmsg", Nick.GetNick(), CString((Nick.GetIdent() + "@" + Nick.GetHost())), sMessage);
+		return CONTINUE;
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete con;
