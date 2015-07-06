@@ -73,12 +73,31 @@ public:
 			Connect();
 			return CONTINUE;
 		}
-		InsertToDb("chan", Nick.GetNick(), CString((Nick.GetIdent() + "@" + Nick.GetHost())), sMessage);
+
+		InsertToDbTest(getQueryString("chan"),
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"chan", Nick.GetNick(),
+				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
+				CString(time(NULL)),
+				sMessage.StripControls()
+			}
+		);
+
 		return CONTINUE;
 	}
 
 	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
-		InsertToDb("privmsg", Nick.GetNick(), CString((Nick.GetIdent() + "@" + Nick.GetHost())), sMessage);
+		InsertToDbTest(getQueryString("chan"),
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"privmsg",
+				Nick.GetNick(),
+				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
+				CString(time(NULL)),
+				sMessage.StripControls()
+			}
+		);
 		return CONTINUE;
 	}
 
@@ -94,20 +113,42 @@ public:
 		return CONTINUE;
 	}
 
-	virtual void InsertToDb(CString type, CString Nick, CString identhost, CString& sMessage)
+	virtual void InsertToDbTest(CString query, vector<CString> params)
 	{
+		unsigned int requiredParams = 0;
+		for (unsigned int i = 0; i < query.size(); i++)
+		{
+			if (query[i] == '?') requiredParams++;
+		}
+
+		if (requiredParams != params.size())
+		{
+			PutModule("'" + query + "' failed: Received " + CString(params.size()) + " params");
+			return;
+		}
+
 		try {
-			prep_stmt = con->prepareStatement("INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)");
-			prep_stmt->setString(1, GetUser()->GetUserName());
-			prep_stmt->setString(2, type);
-			prep_stmt->setString(3, Nick);
-			prep_stmt->setString(4, identhost);
-			prep_stmt->setString(5, CString(time(NULL)));
-			prep_stmt->setString(6, sMessage.StripControls());
+			prep_stmt = con->prepareStatement(query);
+			for (unsigned int i = 0; i < params.size(); i++)
+			{
+				prep_stmt->setString(i + 1, params[i]);
+			}
 			prep_stmt->execute();
 		} catch (sql::SQLException &e) {
 			PutModule(CString(e.what()));
 		}
+	}
+
+	CString getQueryString(CString type)
+	{
+		if (type == "chan")
+		{
+			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
+		} else if (type == "privmsg") {
+			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
+		}
+
+		return "";
 	}
 
 	virtual void Connect()
