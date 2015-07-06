@@ -103,7 +103,6 @@ public:
 
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
-		delete con;
 		delete stmt;
 		delete res;
 		try {
