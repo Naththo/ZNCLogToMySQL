@@ -74,7 +74,7 @@ public:
 			return CONTINUE;
 		}
 
-		InsertToDbTest(getQueryString("chan"),
+		InsertToDb(getQueryString("chan"),
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan", Nick.GetNick(),
@@ -88,7 +88,7 @@ public:
 	}
 
 	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
-		InsertToDbTest(getQueryString("chan"),
+		InsertToDb(getQueryString("chan"),
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"privmsg",
@@ -99,6 +99,19 @@ public:
 			}
 		);
 		return CONTINUE;
+	}
+
+	void OnJoin(const CNick& Nick, CChan& Channel) override {
+		InsertToDb(getQueryString("join"),
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"join",
+				Nick.GetNick(),
+				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
+				CString(time(NULL)),
+				"*** Joins: " + Nick.GetNick() + " (" + CString(Nick.GetIdent() + "@" + Nick.GetHost()) + ")"
+			}
+		);
 	}
 
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
@@ -112,7 +125,7 @@ public:
 		return CONTINUE;
 	}
 
-	virtual void InsertToDbTest(CString query, vector<CString> params)
+	virtual void InsertToDb(CString query, vector<CString> params)
 	{
 		unsigned int requiredParams = 0;
 		for (unsigned int i = 0; i < query.size(); i++)
@@ -144,6 +157,8 @@ public:
 		{
 			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
 		} else if (type == "privmsg") {
+			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
+		} else if (type == "join") {
 			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
 		}
 
