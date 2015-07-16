@@ -3,6 +3,13 @@
 Logs data to MySQL. Data includes:
 
   - Channel messages
+  - Joins
+  - Parts/Quits
+  - Kicks
+  - Modes
+  - Notices
+  - Private messages
+  - Topics
 
 ### How to compile
 **Note:** If you are updating the module and are recompiling, make sure you unload the module with ZNC before you recompile. If you do not your ZNC will crash.
