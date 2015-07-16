@@ -23,7 +23,7 @@ Logs data to MySQL. Data includes:
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 ### TODO
-- [ ] Add kick logs
+- [x] Add kick logs
 - [ ] Add quit logs
 - [ ] Add nick change logs
 - [ ] Add part logs
