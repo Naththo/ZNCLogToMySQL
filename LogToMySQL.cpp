@@ -114,6 +114,20 @@ public:
 		);
 	}
 
+	void OnKick(const CNick& OpNick, const CString& sKickedNick, CChan& Channel, const CString& sMessage)
+	{
+		InsertToDb(getQueryString("chan"),
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"chan",
+				sKickedNick,
+				"",
+				CString(time(NULL)),
+				"*** " + sKickedNick + " was kicked by " + OpNick.GetNick() + " (" + sMessage + ")"
+			}
+		);
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete stmt;
@@ -155,7 +169,7 @@ public:
 	{
 		if (type == "chan" || type == "privmsg" || type == "join")
 		{
-			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
+			return "INSERT INTO chatlogs (znc_user, type, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
 		}
 
 		return "";
