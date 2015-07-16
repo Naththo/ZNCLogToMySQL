@@ -77,7 +77,9 @@ public:
 		InsertToDb(getQueryString("chan"),
 			vector<CString> {
 				GetUser()->GetUserName(),
-				"chan", Nick.GetNick(),
+				"chan",
+				Channel.GetName(),
+				Nick.GetNick(),
 				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
 				CString(time(NULL)),
 				sMessage.StripControls()
@@ -92,6 +94,7 @@ public:
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"privmsg",
+				"",
 				Nick.GetNick(),
 				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
 				CString(time(NULL)),
@@ -105,7 +108,8 @@ public:
 		InsertToDb(getQueryString("join"),
 			vector<CString> {
 				GetUser()->GetUserName(),
-				"join",
+				"chan",
+				Channel.GetName(),
 				Nick.GetNick(),
 				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
 				CString(time(NULL)),
@@ -120,6 +124,7 @@ public:
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
+				Channel.GetName(),
 				sKickedNick,
 				"",
 				CString(time(NULL)),
@@ -167,9 +172,9 @@ public:
 
 	CString getQueryString(CString type)
 	{
-		if (type == "chan" || type == "privmsg" || type == "join")
+		if (type == "chan" || type == "privmsg")
 		{
-			return "INSERT INTO chatlogs (znc_user, type, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
+			return "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		}
 
 		return "";
