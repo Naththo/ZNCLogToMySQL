@@ -169,6 +169,21 @@ public:
 		}
 	}
 
+	void OnPart(const CNick& Nick, CChan& Channel, const CString& sMessage)
+	{
+		InsertToDb(getQueryString(),
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"chan",
+				Channel.GetName(),
+				Nick.GetNick(),
+				"",
+				CString(time(NULL)),
+				"*** Parts: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")"
+			}
+		);
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete stmt;

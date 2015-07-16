@@ -26,6 +26,7 @@ Logs data to MySQL. Data includes:
 - [x] Add kick logs
 - [x] Add quit logs
 - [x] Add nick change logs
-- [ ] Add part logs
+- [x] Add part logs
 - [ ] Add notice logs
 - [ ] Add mode logs
+- [ ] Add topic logs
