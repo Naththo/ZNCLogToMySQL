@@ -69,7 +69,7 @@ public:
 	EModRet OnChanMsg(CNick& Nick, CChan& Channel, CString& sMessage) override {
 		map<CString, CString> params;
 		params["type"] = "chan";
-		params["channel"] = Channel.GetName();
+		params["target"] = Channel.GetName();
 		params["nick"] = Nick.GetNick();
 		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
 		params["message"] = sMessage;
@@ -85,8 +85,9 @@ public:
 		{
 			map<CString, CString> params;
 			params["type"] = "usermsg";
-			params["channel"] = sTarget;
+			params["target"] = sTarget;
 			params["message"] = sMessage;
+			params["nick"] = pNetwork->GetCurNick();
 			InsertToDB(params);
 		}
 
@@ -106,7 +107,7 @@ public:
 	void OnJoin(const CNick& Nick, CChan& Channel) override {
 		map<CString, CString> params;
 		params["type"] = "chan";
-		params["channel"] = Channel.GetName();
+		params["target"] = Channel.GetName();
 		params["nick"] = Nick.GetNick();
 		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
 		params["message"] = "*** Joins: " + Nick.GetNick() + " (" + CString(Nick.GetIdent() + "@" + Nick.GetHost()) + ")";
@@ -117,7 +118,7 @@ public:
 	{
 		map<CString, CString> params;
 		params["type"] = "chan";
-		params["channel"] = Channel.GetName();
+		params["target"] = Channel.GetName();
 		params["nick"] = sKickedNick;
 		params["message"] = "*** " + sKickedNick + " was kicked by " + OpNick.GetNick() + " (" + sMessage + ")";
 		InsertToDB(params);
@@ -129,7 +130,7 @@ public:
 		params["type"] = "chan";
 		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
 		{
-			params["channel"] = (*it)->GetName();
+			params["target"] = (*it)->GetName();
 			params["nick"] = Nick.GetNick();
 			params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
 			params["message"] = "*** Quits: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")";
@@ -143,7 +144,7 @@ public:
 		params["type"] = "chan";
 		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
 		{
-			params["channel"] = (*it)->GetName();
+			params["target"] = (*it)->GetName();
 			params["nick"] = sNewNick;
 			params["identhost"] = OldNick.GetIdent() + "@" + OldNick.GetHost();
 			params["message"] = "*** " + OldNick.GetNick() + " is now known as " + sNewNick;
@@ -155,7 +156,7 @@ public:
 	{
 		map<CString, CString> params;
 		params["type"] = "chan";
-		params["channel"] = Channel.GetName();
+		params["target"] = Channel.GetName();
 		params["nick"] = Nick.GetNick();
 		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
 		params["message"] = "*** Parts: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")";
@@ -193,7 +194,7 @@ public:
 	{
 		map<CString, CString> params;
 		params["type"] = "notice";
-		params["channel"] = Channel.GetName();
+		params["target"] = Channel.GetName();
 		params["nick"] = Nick.GetNick();
 		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
 		params["message"] = "-" + Nick.GetNick() + "- " + sMessage;
@@ -221,7 +222,7 @@ public:
 		}
 
 		params["type"] = "chan";
-		params["channel"] = Channel.GetName();
+		params["target"] = Channel.GetName();
 		params["nick"] = theNick;
 		params["identhost"] = identhost;
 		params["message"] = "*** " + theNick + " sets mode: " + sModes + " " + sArgs;
@@ -232,7 +233,7 @@ public:
 	{
 		map<CString, CString> params;
 		params["type"] = "chan";
-		params["channel"] = Channel.GetName();
+		params["target"] = Channel.GetName();
 		params["nick"] = Nick.GetNick();
 		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
 		params["message"] = "*** " + Nick.GetNick() + " changes topic to '" + sTopic + "'";
@@ -262,11 +263,11 @@ public:
 		}
 
 
-		CString query = "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		CString query = "INSERT INTO chatlogs (znc_user, type, target, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		params["znc_user"] = GetUser()->GetUserName();
 		params["timestamp"] = CString(time(NULL));
 
-		vector<CString> queryOrder = {"znc_user", "type", "channel", "nick", "identhost", "timestamp", "message"};
+		vector<CString> queryOrder = {"znc_user", "type", "target", "nick", "identhost", "timestamp", "message"};
 
 		for (vector<CString>::iterator it = queryOrder.begin(); it != queryOrder.end(); ++it)
 		{
