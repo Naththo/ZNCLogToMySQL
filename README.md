@@ -30,3 +30,4 @@ Logs data to MySQL. Data includes:
 - [x] Add notice logs
 - [x] Add mode logs
 - [ ] Add topic logs
+- [ ] Clean up code
