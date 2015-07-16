@@ -67,121 +67,85 @@ public:
 	}
 
 	EModRet OnChanMsg(CNick& Nick, CChan& Channel, CString& sMessage) override {
-		if (!connected)
-		{
-			PutModule("Not connected");
-			Connect();
-			return CONTINUE;
-		}
-
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"chan",
-				Channel.GetName(),
-				Nick.GetNick(),
-				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
-				CString(time(NULL)),
-				sMessage.StripControls()
-			}
-		);
+		map<CString, CString> params;
+		params["type"] = "chan";
+		params["channel"] = Channel.GetName();
+		params["nick"] = Nick.GetNick();
+		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+		params["message"] = sMessage;
+		InsertToDB(params);
 
 		return CONTINUE;
 	}
 
 	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"privmsg",
-				"",
-				Nick.GetNick(),
-				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
-				CString(time(NULL)),
-				sMessage.StripControls()
-			}
-		);
+		//"INSERT INTO chatlogs (znc_user, type, sent_to, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		map<CString, CString> params;
+		params["type"] = "privmsg";
+		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+		params["message"] = sMessage;
+		params["nick"] = Nick.GetNick();
+		InsertToDB(params);
 		return CONTINUE;
 	}
 
 	void OnJoin(const CNick& Nick, CChan& Channel) override {
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"chan",
-				Channel.GetName(),
-				Nick.GetNick(),
-				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
-				CString(time(NULL)),
-				"*** Joins: " + Nick.GetNick() + " (" + CString(Nick.GetIdent() + "@" + Nick.GetHost()) + ")"
-			}
-		);
+		map<CString, CString> params;
+		params["type"] = "chan";
+		params["channel"] = Channel.GetName();
+		params["nick"] = Nick.GetNick();
+		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+		params["message"] = "*** Joins: " + Nick.GetNick() + " (" + CString(Nick.GetIdent() + "@" + Nick.GetHost()) + ")";
+		InsertToDB(params);
 	}
 
 	void OnKick(const CNick& OpNick, const CString& sKickedNick, CChan& Channel, const CString& sMessage)
 	{
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"chan",
-				Channel.GetName(),
-				sKickedNick,
-				"",
-				CString(time(NULL)),
-				"*** " + sKickedNick + " was kicked by " + OpNick.GetNick() + " (" + sMessage + ")"
-			}
-		);
+		map<CString, CString> params;
+		params["type"] = "chan";
+		params["channel"] = Channel.GetName();
+		params["nick"] = sKickedNick;
+		params["message"] = "*** " + sKickedNick + " was kicked by " + OpNick.GetNick() + " (" + sMessage + ")";
+		InsertToDB(params);
 	}
 
 	void OnQuit(const CNick& Nick, const CString& sMessage, const vector<CChan*>& vChans)
 	{
+		map<CString, CString> params;
+		params["type"] = "chan";
 		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
 		{
-			InsertToDB(
-				vector <CString> {
-					GetUser()->GetUserName(),
-					"chan",
-					(*it)->GetName(),
-					Nick.GetNick(),
-					CString((Nick.GetIdent() + "@" + Nick.GetHost())),
-					CString(time(NULL)),
-					"*** Quits: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")"
-				}
-			);
+			params["channel"] = (*it)->GetName();
+			params["nick"] = Nick.GetNick();
+			params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+			params["message"] = "*** Quits: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")";
+			InsertToDB(params);
 		}
 	}
 
 	void OnNick(const CNick& OldNick, const CString& sNewNick, const vector<CChan*>& vChans)
 	{
+		map<CString, CString> params;
+		params["type"] = "chan";
 		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
 		{
-			InsertToDB(
-				vector <CString> {
-					GetUser()->GetUserName(),
-					"chan",
-					(*it)->GetName(),
-					OldNick.GetNick(),
-					CString((OldNick.GetIdent() + "@" + OldNick.GetHost())),
-					CString(time(NULL)),
-					"*** " + OldNick.GetNick() + " is now known as " + sNewNick
-				}
-			);
+			params["channel"] = (*it)->GetName();
+			params["nick"] = sNewNick;
+			params["identhost"] = OldNick.GetIdent() + "@" + OldNick.GetHost();
+			params["message"] = "*** " + OldNick.GetNick() + " is now known as " + sNewNick;
+			InsertToDB(params);
 		}
 	}
 
 	void OnPart(const CNick& Nick, CChan& Channel, const CString& sMessage)
 	{
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"chan",
-				Channel.GetName(),
-				Nick.GetNick(),
-				"",
-				CString(time(NULL)),
-				"*** Parts: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")"
-			}
-		);
+		map<CString, CString> params;
+		params["type"] = "chan";
+		params["channel"] = Channel.GetName();
+		params["nick"] = Nick.GetNick();
+		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+		params["message"] = "*** Parts: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")";
+		InsertToDB(params);
 	}
 
 	EModRet OnUserNotice(CString& sTarget, CString& sMessage)
@@ -189,17 +153,11 @@ public:
 		CIRCNetwork* pNetwork = GetNetwork();
 		if (pNetwork)
 		{
-			InsertToDB(
-				vector<CString> {
-					GetUser()->GetUserName(),
-					"notice",
-					"",
-					pNetwork->GetCurNick(),
-					"",
-					CString(time(NULL)),
-					"->" + sTarget + " - " + pNetwork->GetCurNick() + "- " + sMessage
-				}
-			);
+			map<CString, CString> params;
+			params["type"] = "notice";
+			params["nick"] = pNetwork->GetCurNick();
+			params["message"] = "->" + sTarget + " - " + pNetwork->GetCurNick() + "- " + sMessage;
+			InsertToDB(params);
 		}
 
 		return CONTINUE;
@@ -207,44 +165,37 @@ public:
 
 	EModRet OnPrivNotice(CNick& Nick, CString& sMessage)
 	{
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"notice",
-				"",
-				Nick.GetNick(),
-				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
-				CString(time(NULL)),
-				"-" + Nick.GetNick() + "- " + sMessage
-			}
-		);
+		map<CString, CString> params;
+		params["type"] = "notice";
+		params["nick"] = Nick.GetNick();
+		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+		params["message"] = "-" + Nick.GetNick() + "- " + sMessage;
+		InsertToDB(params);
 
 		return CONTINUE;
 	}
 
 	EModRet OnChanNotice(CNick& Nick, CChan& Channel, CString& sMessage)
 	{
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"notice",
-				Channel.GetName(),
-				Nick.GetNick(),
-				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
-				CString(time(NULL)),
-				"-" + Nick.GetNick() + "- " + sMessage
-			}
-		);
+		map<CString, CString> params;
+		params["type"] = "notice";
+		params["channel"] = Channel.GetName();
+		params["nick"] = Nick.GetNick();
+		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+		params["message"] = "-" + Nick.GetNick() + "- " + sMessage;
+		InsertToDB(params);
 
 		return CONTINUE;
 	}
 
 	void OnRawMode2(const CNick* pOpNick, CChan& Channel, const CString& sModes, const CString& sArgs)
 	{
-		CString sNickMask = pOpNick ? pOpNick->GetNickMask() : "Server";
+		map<CString, CString> params;
 
 		CString theNick;
 		CString identhost;
+
+		CString sNickMask = pOpNick ? pOpNick->GetNickMask() : "Server";
 
 		if (pOpNick)
 		{
@@ -255,17 +206,12 @@ public:
 			identhost = "server@server";
 		}
 
-		InsertToDB(
-			vector<CString> {
-				GetUser()->GetUserName(),
-				"chan",
-				Channel.GetName(),
-				theNick,
-				identhost,
-				CString(time(NULL)),
-				"*** " + theNick + " sets mode: " + sModes + " " + sArgs
-			}
-		);
+		params["type"] = "chan";
+		params["channel"] = Channel.GetName();
+		params["nick"] = theNick;
+		params["identhost"] = identhost;
+		params["message"] = "*** " + theNick + " sets mode: " + sModes + " " + sArgs;
+		InsertToDB(params);
 	}
 
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
@@ -279,26 +225,37 @@ public:
 		return CONTINUE;
 	}
 
-	virtual void InsertToDB(vector<CString> params)
+	virtual void InsertToDB(map<CString, CString> params)
 	{
-		CString query = "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
-		unsigned int requiredParams = 0;
-		for (unsigned int i = 0; i < query.size(); i++)
+
+		if (!connected)
 		{
-			if (query[i] == '?') requiredParams++;
+			PutModule("Not connected");
+			return;
 		}
 
-		if (requiredParams != params.size())
+
+		CString query = "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		params["znc_user"] = GetUser()->GetUserName();
+		params["timestamp"] = CString(time(NULL));
+
+		vector<CString> queryOrder = {"znc_user", "type", "channel", "nick", "identhost", "timestamp", "message"};
+
+		for (vector<CString>::iterator it = queryOrder.begin(); it != queryOrder.end(); ++it)
 		{
-			PutModule("'" + query + "' failed: Received " + CString(params.size()) + " params");
-			return;
+			if (params.find(*it) == params.end())
+			{
+				params[*it] = "";
+			}
 		}
 
 		try {
 			prep_stmt = con->prepareStatement(query);
-			for (unsigned int i = 0; i < params.size(); i++)
+			unsigned int i = 1;
+			for (vector<CString>::iterator it = queryOrder.begin(); it != queryOrder.end(); ++it)
 			{
-				prep_stmt->setString(i + 1, params[i]);
+				prep_stmt->setString(i, params[(*it)]);
+				i++;
 			}
 			prep_stmt->execute();
 		} catch (sql::SQLException &e) {
