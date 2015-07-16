@@ -151,6 +151,24 @@ public:
 		}
 	}
 
+	void OnNick(const CNick& OldNick, const CString& sNewNick, const vector<CChan*>& vChans)
+	{
+		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
+		{
+			InsertToDb(getQueryString(),
+				vector <CString> {
+					GetUser()->GetUserName(),
+					"chan",
+					(*it)->GetName(),
+					OldNick.GetNick(),
+					CString((OldNick.GetIdent() + "@" + OldNick.GetHost())),
+					CString(time(NULL)),
+					"*** " + OldNick.GetNick() + " is now known as " + sNewNick
+				}
+			);
+		}
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete stmt;
