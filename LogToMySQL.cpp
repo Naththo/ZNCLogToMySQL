@@ -153,12 +153,8 @@ public:
 
 	CString getQueryString(CString type)
 	{
-		if (type == "chan")
+		if (type == "chan" || type == "privmsg" || type == "join")
 		{
-			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
-		} else if (type == "privmsg") {
-			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
-		} else if (type == "join") {
 			return "INSERT INTO chatlogs (znc_user, type, sender, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?)";
 		}
 
