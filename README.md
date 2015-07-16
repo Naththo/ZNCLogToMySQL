@@ -21,3 +21,11 @@ Logs data to MySQL. Data includes:
       `message` text,
       KEY `Index 1` (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+### TODO
+- [ ] Add kick logs
+- [ ] Add quit logs
+- [ ] Add nick change logs
+- [ ] Add part logs
+- [ ] Add notice logs
+- [ ] Add mode logs
