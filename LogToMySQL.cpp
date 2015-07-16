@@ -184,6 +184,61 @@ public:
 		);
 	}
 
+	EModRet OnUserNotice(CString& sTarget, CString& sMessage)
+	{
+		CIRCNetwork* pNetwork = GetNetwork();
+		if (pNetwork)
+		{
+			InsertToDb(getQueryString(),
+				vector<CString> {
+					GetUser()->GetUserName(),
+					"notice",
+					"",
+					pNetwork->GetCurNick(),
+					"",
+					CString(time(NULL)),
+					"->" + sTarget + " - " + pNetwork->GetCurNick() + "- " + sMessage
+				}
+			);
+		}
+
+		return CONTINUE;
+	}
+
+	EModRet OnPrivNotice(CNick& Nick, CString& sMessage)
+	{
+		InsertToDb(getQueryString(),
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"notice",
+				"",
+				Nick.GetNick(),
+				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
+				CString(time(NULL)),
+				"-" + Nick.GetNick() + "- " + sMessage
+			}
+		);
+
+		return CONTINUE;
+	}
+
+	EModRet OnChanNotice(CNick& Nick, CChan& Channel, CString& sMessage)
+	{
+		InsertToDb(getQueryString(),
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"notice",
+				Channel.GetName(),
+				Nick.GetNick(),
+				CString((Nick.GetIdent() + "@" + Nick.GetHost())),
+				CString(time(NULL)),
+				"-" + Nick.GetNick() + "- " + sMessage
+			}
+		);
+
+		return CONTINUE;
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete stmt;
