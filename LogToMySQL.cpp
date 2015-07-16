@@ -74,7 +74,7 @@ public:
 			return CONTINUE;
 		}
 
-		InsertToDb(getQueryString("chan"),
+		InsertToDb(getQueryString(),
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
@@ -90,7 +90,7 @@ public:
 	}
 
 	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
-		InsertToDb(getQueryString("chan"),
+		InsertToDb(getQueryString(),
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"privmsg",
@@ -105,7 +105,7 @@ public:
 	}
 
 	void OnJoin(const CNick& Nick, CChan& Channel) override {
-		InsertToDb(getQueryString("join"),
+		InsertToDb(getQueryString(),
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
@@ -120,7 +120,7 @@ public:
 
 	void OnKick(const CNick& OpNick, const CString& sKickedNick, CChan& Channel, const CString& sMessage)
 	{
-		InsertToDb(getQueryString("chan"),
+		InsertToDb(getQueryString(),
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
@@ -170,14 +170,9 @@ public:
 		}
 	}
 
-	CString getQueryString(CString type)
+	CString getQueryString()
 	{
-		if (type == "chan" || type == "privmsg")
-		{
 			return "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
-		}
-
-		return "";
 	}
 
 	virtual void Connect()
