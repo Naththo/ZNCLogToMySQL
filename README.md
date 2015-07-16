@@ -29,4 +29,4 @@ Logs data to MySQL. Data includes:
 - [x] Add part logs
 - [x] Add notice logs
 - [x] Add mode logs
-- [ ] Add topic logs
+- [x] Add topic logs

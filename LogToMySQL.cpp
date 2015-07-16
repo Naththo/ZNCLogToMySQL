@@ -214,6 +214,19 @@ public:
 		InsertToDB(params);
 	}
 
+	EModRet OnTopic(CNick& Nick, CChan& Channel, CString& sTopic)
+	{
+		map<CString, CString> params;
+		params["type"] = "chan";
+		params["channel"] = Channel.GetName();
+		params["nick"] = Nick.GetNick();
+		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
+		params["message"] = "*** " + Nick.GetNick() + " changes topic to '" + sTopic + "'";
+		InsertToDB(params);
+
+		return CONTINUE;
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete stmt;
