@@ -79,7 +79,6 @@ public:
 	}
 
 	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
-		//"INSERT INTO chatlogs (znc_user, type, sent_to, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		map<CString, CString> params;
 		params["type"] = "privmsg";
 		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
