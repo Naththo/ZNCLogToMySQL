@@ -133,6 +133,24 @@ public:
 		);
 	}
 
+	void OnQuit(const CNick& Nick, const CString& sMessage, const vector<CChan*>& vChans)
+	{
+		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
+		{
+			InsertToDb(getQueryString(),
+				vector <CString> {
+					GetUser()->GetUserName(),
+					"chan",
+					(*it)->GetName(),
+					Nick.GetNick(),
+					CString((Nick.GetIdent() + "@" + Nick.GetHost())),
+					CString(time(NULL)),
+					"*** Quits: " + Nick.GetNick() + " (" + Nick.GetIdent() + "@" + Nick.GetHost() + ") (" + sMessage + ")"
+				}
+			);
+		}
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete stmt;
@@ -172,7 +190,7 @@ public:
 
 	CString getQueryString()
 	{
-			return "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		return "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
 	}
 
 	virtual void Connect()
