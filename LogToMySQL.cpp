@@ -74,7 +74,7 @@ public:
 			return CONTINUE;
 		}
 
-		InsertToDb(getQueryString(),
+		InsertToDb(
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
@@ -90,7 +90,7 @@ public:
 	}
 
 	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
-		InsertToDb(getQueryString(),
+		InsertToDb(
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"privmsg",
@@ -105,7 +105,7 @@ public:
 	}
 
 	void OnJoin(const CNick& Nick, CChan& Channel) override {
-		InsertToDb(getQueryString(),
+		InsertToDb(
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
@@ -120,7 +120,7 @@ public:
 
 	void OnKick(const CNick& OpNick, const CString& sKickedNick, CChan& Channel, const CString& sMessage)
 	{
-		InsertToDb(getQueryString(),
+		InsertToDb(
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
@@ -137,7 +137,7 @@ public:
 	{
 		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
 		{
-			InsertToDb(getQueryString(),
+			InsertToDb(
 				vector <CString> {
 					GetUser()->GetUserName(),
 					"chan",
@@ -155,7 +155,7 @@ public:
 	{
 		for (vector<CChan*>::const_iterator it = vChans.begin(); it != vChans.end(); ++it)
 		{
-			InsertToDb(getQueryString(),
+			InsertToDb(
 				vector <CString> {
 					GetUser()->GetUserName(),
 					"chan",
@@ -171,7 +171,7 @@ public:
 
 	void OnPart(const CNick& Nick, CChan& Channel, const CString& sMessage)
 	{
-		InsertToDb(getQueryString(),
+		InsertToDb(
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"chan",
@@ -189,7 +189,7 @@ public:
 		CIRCNetwork* pNetwork = GetNetwork();
 		if (pNetwork)
 		{
-			InsertToDb(getQueryString(),
+			InsertToDb(
 				vector<CString> {
 					GetUser()->GetUserName(),
 					"notice",
@@ -207,7 +207,7 @@ public:
 
 	EModRet OnPrivNotice(CNick& Nick, CString& sMessage)
 	{
-		InsertToDb(getQueryString(),
+		InsertToDb(
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"notice",
@@ -224,7 +224,7 @@ public:
 
 	EModRet OnChanNotice(CNick& Nick, CChan& Channel, CString& sMessage)
 	{
-		InsertToDb(getQueryString(),
+		InsertToDb(
 			vector<CString> {
 				GetUser()->GetUserName(),
 				"notice",
@@ -250,8 +250,9 @@ public:
 		return CONTINUE;
 	}
 
-	virtual void InsertToDb(CString query, vector<CString> params)
+	virtual void InsertToDb(vector<CString> params)
 	{
+		CString query = "INSERT INTO chatlogs (znc_user, type, channel, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		unsigned int requiredParams = 0;
 		for (unsigned int i = 0; i < query.size(); i++)
 		{
