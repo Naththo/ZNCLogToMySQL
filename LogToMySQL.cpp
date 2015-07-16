@@ -78,6 +78,21 @@ public:
 		return CONTINUE;
 	}
 
+	EModRet OnUserMsg(CString& sTarget, CString& sMessage)
+	{
+		CIRCNetwork* pNetwork = GetNetwork();
+		if (pNetwork)
+		{
+			map<CString, CString> params;
+			params["type"] = "usermsg";
+			params["channel"] = sTarget;
+			params["message"] = sMessage;
+			InsertToDB(params);
+		}
+
+		return CONTINUE;
+	}
+
 	EModRet OnPrivMsg(CNick& Nick, CString& sMessage) override {
 		map<CString, CString> params;
 		params["type"] = "privmsg";
