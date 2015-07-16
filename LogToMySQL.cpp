@@ -239,6 +239,35 @@ public:
 		return CONTINUE;
 	}
 
+	void OnRawMode2(const CNick* pOpNick, CChan& Channel, const CString& sModes, const CString& sArgs)
+	{
+		CString sNickMask = pOpNick ? pOpNick->GetNickMask() : "Server";
+
+		CString theNick;
+		CString identhost;
+
+		if (pOpNick)
+		{
+			theNick = pOpNick->GetNick();
+			identhost = pOpNick->GetIdent() + "@" + pOpNick->GetHost();
+		} else {
+			theNick = "Server";
+			identhost = "server@server";
+		}
+
+		InsertToDB(
+			vector<CString> {
+				GetUser()->GetUserName(),
+				"chan",
+				Channel.GetName(),
+				theNick,
+				identhost,
+				CString(time(NULL)),
+				"*** " + theNick + " sets mode: " + sModes + " " + sArgs
+			}
+		);
+	}
+
 	virtual EModRet OnModuleUnloading(CModule* pModule, bool& bSuccess, CString& sRetMsg)
 	{
 		delete stmt;
