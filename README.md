@@ -14,10 +14,10 @@ Logs data to MySQL. Data includes:
     CREATE TABLE IF NOT EXISTS `chatlogs` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `znc_user` varchar(50) DEFAULT NULL,
-      `type` enum('privmsg','chan','join') NOT NULL,
-      `sender` varchar(50) NOT NULL,
+      `type` varchar(20) NOT NULL,
+      `channel` varchar(50) NOT NULL,
       `identhost` varchar(70) DEFAULT NULL,
-      `timestamp` varchar(50) DEFAULT NULL,
+      `timestamp` varchar(12) DEFAULT NULL,
       `message` text,
       KEY `Index 1` (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
