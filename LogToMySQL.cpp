@@ -32,9 +32,19 @@ public:
 			sMessage = configOK;
 			return false;
 		}
-		sMessage = "Success!";
-		Connect();
-		return true;
+
+
+		Connect((sArgsi.size() == 0 ? false : true));
+		if (connected)
+		{
+			sMessage = "Success!";
+			return true;
+		}
+		else
+		{
+			sMessage = conError;
+			return false;
+		}
 	}
 
 	CString SetConfig(CString sArgsi = "")
@@ -290,14 +300,6 @@ public:
 
 	virtual void InsertToDB(map<CString, CString> params)
 	{
-
-		if (!connected)
-		{
-			PutModule("Not connected");
-			return;
-		}
-
-
 		CString query = "INSERT INTO chatlogs (znc_user, type, target, nick, identhost, timestamp, message) VALUES (?, ?, ?, ?, ?, ?, ?)";
 		params["znc_user"] = GetUser()->GetUserName();
 		params["timestamp"] = CString(time(NULL));
@@ -326,23 +328,20 @@ public:
 		}
 	}
 
-	virtual void Connect()
+	void Connect(bool newConfig = false)
 	{
-		if (tries == 3)
-		{
-			return;
-		}
-
 		try {
 			PutModule("connecting to " + conInfo["host"]);
 			driver = get_driver_instance();
 			con = driver->connect(conInfo["host"], conInfo["username"], conInfo["password"]);
 			con->setSchema(conInfo["database"]);
+			if (newConfig)
+			{
+				writeConfigFile();
+			}
 			connected = true;
-			writeConfigFile();
 		} catch (sql::SQLException &e) {
-			PutModule(CString(e.getErrorCode()));
-			tries++;
+			conError = CString(e.getErrorCode()) + ": " + CString(e.what());
 		}
 	}
 
@@ -354,7 +353,7 @@ private:
 	sql::PreparedStatement *prep_stmt;
 	map<CString, CString> conInfo;
 	bool connected = false;
-	int tries = 0;
+	CString conError;
 	CString configFile = GetSavePath() + "/config.conf";
 };
 
