@@ -17,7 +17,11 @@ Logs data to MySQL. Data includes:
 `env LIBS="-L/usr/lib -lmysqlcppconn" znc-buildmod LogToMySQL.cpp`
 
 ###Loading the module
+##### First run
 `/msg *status loadmod LogToMySQL database:dbname;host:127.0.0.1;username:dbuser;password:thepassword`
+#####Otherwise just load the module
+`/msg *status loadmod LogToMySQL`
+
 
 ###Table structure
     CREATE TABLE IF NOT EXISTS `chatlogs` (
