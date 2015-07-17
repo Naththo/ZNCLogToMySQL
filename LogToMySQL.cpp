@@ -3,6 +3,7 @@
 #include <znc/Chan.h>
 #include <znc/IRCNetwork.h>
 #include <znc/User.h>
+#include <znc/Utils.h>
  
 #include <time.h>
 #include <stdlib.h>
@@ -67,6 +68,12 @@ public:
 					setting = sLine.Token(1, true, "=");
 					conInfo[settingname] = setting;
 				}
+
+				if (conInfo.find("salt") != conInfo.end() && conInfo.find("password") != conInfo.end())
+				{
+					CBlowfish c(conInfo["salt"], BF_DECRYPT);
+					conInfo["password"] = c.Crypt(conInfo["password"]);
+				}
 			}
 		}
 		else
@@ -105,10 +112,26 @@ public:
 		{
 			for (map<CString, CString>::iterator it = conInfo.begin(); it != conInfo.end(); it++)
 			{
+				if (it->first == "password")
+				{
+					conInfo["salt"] = getSalt();
+					CBlowfish c(conInfo["salt"], BF_ENCRYPT);
+					CString crypted = c.Crypt(it->second);
+					crypted.Trim();
+					file.Write(it->first + "=" + crypted + "\n");
+					continue;
+				}
+
 				file.Write(it->first + "=" + it->second + "\n");
 			}
 			file.Close();
 		}
+	}
+
+	CString getSalt()
+	{
+		CString salt;
+		return salt.RandomString(10);
 	}
 
 	EModRet OnChanMsg(CNick& Nick, CChan& Channel, CString& sMessage) override {
