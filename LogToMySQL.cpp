@@ -25,7 +25,7 @@ public:
 
 	virtual bool OnLoad(const CString& sArgsi, CString& sMessage) override
 	{
-		CString configOK = SetConfigFromArgs(sArgsi);
+		CString configOK = SetConfig(sArgsi);
 
 		if (configOK != "success")
 		{
@@ -37,22 +37,43 @@ public:
 		return true;
 	}
 
-	CString SetConfigFromArgs(CString sArgsi)
+	CString SetConfig(CString sArgsi = "")
 	{
 		map<CString, CString> config;
-		VCString args;
-		sArgsi.Split(";", args);
 		vector<CString> requiredconfigitems = {"database", "host", "username", "password"};
 
-		for (unsigned int i = 0; i < args.size(); i++)
+		if (sArgsi.size() == 0)
 		{
-			CString settingname;
-			CString setting;
-			settingname = args[i].Token(0, false, ":");
-			setting = args[i].Token(1, true, ":");
-			if (settingname != "" && setting != "")
+			CFile file(configFile);
+			if (file.Open(O_RDONLY))
 			{
-				conInfo[settingname] = setting;
+				CString sLine;
+				CString setting;
+				CString settingname;
+				while (file.ReadLine(sLine))
+				{
+					sLine.Trim();
+					settingname = sLine.Token(0, false, "=");
+					setting = sLine.Token(1, true, "=");
+					conInfo[settingname] = setting;
+				}
+			}
+		}
+		else
+		{
+			VCString args;
+			sArgsi.Split(";", args);
+
+			for (unsigned int i = 0; i < args.size(); i++)
+			{
+				CString settingname;
+				CString setting;
+				settingname = args[i].Token(0, false, ":");
+				setting = args[i].Token(1, true, ":");
+				if (settingname != "" && setting != "")
+				{
+					conInfo[settingname] = setting;
+				}
 			}
 		}
 
@@ -64,6 +85,20 @@ public:
 			}
 		}
 		return "success";
+	}
+
+	void writeConfigFile()
+	{
+		CFile file(configFile);
+
+		if (file.Open(O_WRONLY | O_APPEND | O_CREAT))
+		{
+			for (map<CString, CString>::iterator it = conInfo.begin(); it != conInfo.end(); it++)
+			{
+				file.Write(it->first + "=" + it->second + "\n");
+			}
+			file.Close();
+		}
 	}
 
 	EModRet OnChanMsg(CNick& Nick, CChan& Channel, CString& sMessage) override {
@@ -304,6 +339,7 @@ public:
 			con = driver->connect(conInfo["host"], conInfo["username"], conInfo["password"]);
 			con->setSchema(conInfo["database"]);
 			connected = true;
+			writeConfigFile();
 		} catch (sql::SQLException &e) {
 			PutModule(CString(e.getErrorCode()));
 			tries++;
@@ -319,6 +355,7 @@ private:
 	map<CString, CString> conInfo;
 	bool connected = false;
 	int tries = 0;
+	CString configFile = GetSavePath() + "/config.conf";
 };
 
 template<> void TModInfo<CMySQLLog>(CModInfo& Info) {
