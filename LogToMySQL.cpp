@@ -140,7 +140,7 @@ public:
 		params["target"] = Channel.GetName();
 		params["nick"] = Nick.GetNick();
 		params["identhost"] = Nick.GetIdent() + "@" + Nick.GetHost();
-		params["message"] = sMessage;
+		params["message"] = sMessage.StripControls();
 		InsertToDB(params);
 
 		return CONTINUE;
