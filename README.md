@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS `chatlogs` (
 	`znc_user` varchar(50) DEFAULT NULL,
 	`type` varchar(20) NOT NULL,
 	`target` varchar(50) NOT NULL,
+	`nick` varchar(50) DEFAULT NULL,
 	`identhost` varchar(70) DEFAULT NULL,
 	`timestamp` varchar(12) DEFAULT NULL,
 	`message` text,
