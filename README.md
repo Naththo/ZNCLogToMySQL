@@ -24,13 +24,15 @@ Logs data to MySQL. Data includes:
 
 
 ###Table structure
-    CREATE TABLE IF NOT EXISTS `chatlogs` (
-      `id` int(11) NOT NULL AUTO_INCREMENT,
-      `znc_user` varchar(50) DEFAULT NULL,
-      `type` varchar(20) NOT NULL,
-      `target` varchar(50) NOT NULL,
-      `identhost` varchar(70) DEFAULT NULL,
-      `timestamp` varchar(12) DEFAULT NULL,
-      `message` text,
-      KEY `Index 1` (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+```sql
+CREATE TABLE IF NOT EXISTS `chatlogs` (
+	`id` int(11) NOT NULL AUTO_INCREMENT,
+	`znc_user` varchar(50) DEFAULT NULL,
+	`type` varchar(20) NOT NULL,
+	`target` varchar(50) NOT NULL,
+	`identhost` varchar(70) DEFAULT NULL,
+	`timestamp` varchar(12) DEFAULT NULL,
+	`message` text,
+	KEY `Index 1` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+```
