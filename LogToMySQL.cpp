@@ -338,6 +338,7 @@ public:
 		}
 
 		try {
+			sql::PreparedStatement *prep_stmt;
 			prep_stmt = con->prepareStatement(query);
 			unsigned int i = 1;
 			for (vector<CString>::iterator it = queryOrder.begin(); it != queryOrder.end(); ++it)
@@ -346,6 +347,7 @@ public:
 				i++;
 			}
 			prep_stmt->execute();
+			delete prep_stmt;
 		} catch (sql::SQLException &e) {
 			PutModule(CString(e.what()));
 		}
@@ -373,7 +375,6 @@ private:
 	sql::Connection *con;
 	sql::Statement *stmt;
 	sql::ResultSet *res;
-	sql::PreparedStatement *prep_stmt;
 	map<CString, CString> conInfo;
 	bool connected = false;
 	CString conError;
