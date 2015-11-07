@@ -14,7 +14,7 @@ Logs data to MySQL. Data includes:
 ### How to compile
 **Note:** If you are updating the module and are recompiling, make sure you unload the module with ZNC before you recompile. If you do not your ZNC will crash.
 
-`env LIBS="-L/usr/lib -lmysqlcppconn" znc-buildmod LogToMySQL.cpp`
+Run `make` from the directory
 
 ###Loading the module
 ##### First run
